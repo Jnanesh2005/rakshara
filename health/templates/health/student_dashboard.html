@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ profile.user.get_full_name }}'s Dashboard</h2>
+<p>Student ID: {{ profile.student_code }}</p>
+
+<canvas id="hrChart" width="600" height="200"></canvas>
+
+<script>
+const labels = {{ labels|safe }};
+const hrData = {{ hr_data|safe }};
+const spo2Data = {{ spo2_data|safe }};
+const tempData = {{ temp_data|safe }};
+
+new Chart(document.getElementById('hrChart'), {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [
+      { label: 'Heart Rate', data: hrData, fill: false },
+      { label: 'SpO2', data: spo2Data, fill: false },
+      { label: 'Temp', data: tempData, fill: false }
+    ]
+  },
+  options: {}
+});
+</script>
+
+<h3>Recent Records</h3>
+<ul>
+  {% for v in vitals %}
+    <li>{{ v.recorded_at }} - HR: {{ v.heart_rate }}, SpO2: {{ v.spo2 }}, Temp: {{ v.temperature_c }}, Prediction: {{ v.prediction_score }} ({{ v.prediction_label }})</li>
+  {% empty %}
+    <li>No records yet</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'add_vital' %}">Add Vitals</a>
+{% endblock %}

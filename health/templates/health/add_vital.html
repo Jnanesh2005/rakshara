@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Add Health Vitals</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <p><label>Heart Rate (bpm):</label><br>
+    <input type="number" name="heart_rate" step="1" required></p>
+
+    <p><label>Blood Oxygen Level (SpO₂ %):</label><br>
+    <input type="number" name="spo2" step="0.1" required></p>
+
+    <p><label>Breathing Rate (breaths/min):</label><br>
+    <input type="number" name="breathing_rate" step="0.1" required></p>
+
+    <p><label>Temperature (°C):</label><br>
+    <input type="number" name="temperature" step="0.1" required></p>
+
+    <button type="submit">Submit</button>
+</form>
+
+<p><a href="{% url 'student_dashboard' %}">← Back to Dashboard</a></p>
+{% endblock %}

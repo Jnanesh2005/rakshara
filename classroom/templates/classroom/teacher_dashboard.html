@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4 fw-bold">🏫 Teacher Dashboard</h2>
+  <p class="text-center fs-5">Welcome, <strong>{{ request.user.username }}</strong></p>
+
+  {% if messages %}
+  <div class="mt-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} shadow-sm fade show" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- 📝 Pending Join Requests -->
+  <hr>
+  <h4>📝 Pending Join Requests</h4>
+  {% if pending_requests %}
+  <div class="table-responsive mt-3">
+    <table class="table table-bordered text-center align-middle shadow-sm">
+      <thead class="table-warning">
+        <tr>
+          <th>Student</th>
+          <th>Class</th>
+          <th>Section</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in pending_requests %}
+        <tr>
+          <td>{{ req.student.user.get_full_name|default:req.student.user.username }}</td>
+          <td>{{ req.class_name }}</td>
+          <td>{{ req.section|upper }}</td>
+          <td>
+            <a href="{% url 'approve_request' req.id %}" class="btn btn-success btn-sm me-1">✅ Approve</a>
+            <a href="{% url 'reject_request' req.id %}" class="btn btn-danger btn-sm">❌ Reject</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted">No pending requests.</p>
+  {% endif %}
+
+  <!-- 🔔 Notifications -->
+  <hr>
+  <h4>
+    🔔 Notifications 
+    {% if unread_count > 0 %}
+      <span class="badge bg-danger">{{ unread_count }}</span>
+    {% endif %}
+  </h4>
+  {% if notifications %}
+  <ul class="list-group mt-2 shadow-sm">
+    {% for n in notifications %}
+      <li class="list-group-item d-flex justify-content-between align-items-center {% if not n.is_read %}fw-bold{% endif %}">
+        <span>{{ n.message }}</span>
+        <small class="text-muted">{{ n.created_at|date:"M d, H:i" }}</small>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-muted mt-2">No notifications yet.</p>
+  {% endif %}
+
+  <!-- 📘 My Classes -->
+  <hr>
+  <h4>📘 My Classes</h4>
+  {% if classes %}
+  <div class="table-responsive mt-3">
+    <table class="table table-bordered table-striped text-center align-middle shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th>Class</th>
+          <th>Section</th>
+          <th>Total Students</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in classes %}
+        <tr>
+          <td>{{ c.class_name }}</td>
+          <td>{{ c.section|upper }}</td>
+          <td>{{ c.student_count }}</td>
+          <td>
+            <!-- ✅ Correct URL (fixes your 404 issue) -->
+            <a href="{% url 'classroom_detail' c.id %}" class="btn btn-primary btn-sm">
+              👁 View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted mt-3">No virtual classrooms yet.</p>
+  {% endif %}
+
+  <!-- ➕ Create New Class -->
+  <hr>
+  <h4>➕ Create New Class</h4>
+  <form method="post" class="border p-3 rounded bg-light shadow-sm mt-3">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-4 mb-2">
+        <input type="text" name="class_name" class="form-control" placeholder="Class (e.g. 4)" required>
+      </div>
+      <div class="col-md-4 mb-2">
+        <input type="text" name="section" class="form-control" placeholder="Section (e.g. A)" required>
+      </div>
+      <div class="col-md-4 mb-2 text-center">
+        <button type="submit" class="btn btn-success w-100">➕ Create</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

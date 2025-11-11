@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block content %}
 <div class="register-container d-flex align-items-center justify-content-center">
   <div class="register-card p-4 p-md-5 shadow-lg rounded-4 bg-white text-center animate-fade-in">
-    <h2 class="fw-bold text-gradient mb-3">🧑‍🏫 Teacher Registration</h2>
-    <p class="text-muted mb-4">Join <strong>Rakshara</strong> and manage your classroom health insights.</p>
+    <h2 class="fw-bold text-gradient mb-3">🧑‍🏫 {% trans "Teacher Registration" %}</h2>
+    <p class="text-muted mb-4">{% trans "Join" %} <strong>Rakshara</strong> {% trans "and manage your classroom health insights." %}</p>
 
     <form method="post" class="text-start">
       {% csrf_token %}
@@ -12,7 +13,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 mt-3 shadow-sm">
-        🚀 Register
+        🚀 {% trans "Register" %}
       </button>
     </form>
 
@@ -25,13 +26,13 @@
     {% endif %}
 
     <div class="mt-4">
-      <p class="text-muted mb-1">Already registered?</p>
-      <a href="{% url 'login' %}" class="btn btn-outline-secondary rounded-pill px-4">🔑 Login Here</a>
+      <p class="text-muted mb-1">{% trans "Already registered?" %}</p>
+      <a href="{% url 'login' %}" class="btn btn-outline-secondary rounded-pill px-4">🔑 {% trans "Login Here" %}</a>
     </div>
 
     <div class="otp-hint mt-4 small text-muted border-top pt-3">
-      <strong>Note:</strong> After registration, a 6-digit OTP will be sent to your registered email 
-      for verification. Please check your inbox to activate your account.
+      <strong>{% trans "Note" %}:</strong> {% blocktrans %}After registration, a 6-digit OTP will be sent to your registered email 
+      for verification. Please check your inbox to activate your account.{% endblocktrans %}
     </div>
   </div>
 </div>

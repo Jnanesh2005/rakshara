@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block content %}
 
 <div class="checkup-container d-flex align-items-center justify-content-center py-5">
@@ -6,14 +7,14 @@
     
     <!-- 🩺 Header -->
     <div class="text-center mb-4">
-      <h2 class="fw-bold text-gradient">🩺 Quick Health Check</h2>
-      <p class="text-muted mb-1">{{ vc }} — Student {{ idx|add:1 }} of {{ total }}</p>
+      <h2 class="fw-bold text-gradient">🩺 {% trans "Quick Health Check" %}</h2>
+      <p class="text-muted mb-1">{{ vc }} — {% trans "Student" %} {{ idx|add:1 }} {% trans "of" %} {{ total }}</p>
     </div>
 
     <!-- 👩‍🎓 Student Info -->
     <div class="text-center mb-4">
       <h4 class="fw-semibold text-dark mb-0">{{ student.user.get_full_name }}</h4>
-      <small class="text-muted">Roll No: {{ student.roll_no }}</small>
+      <small class="text-muted">{% trans "Roll No" %}: {{ student.roll_no }}</small>
     </div>
 
     <!-- 🧾 Form -->
@@ -21,36 +22,36 @@
       {% csrf_token %}
       <input type="hidden" name="idx" value="{{ idx }}">
       <div class="col-md-6">
-        <label class="form-label fw-semibold">💓 Heart Rate (bpm)</label>
+        <label class="form-label fw-semibold">💓 {% trans "Heart Rate (bpm)" %}</label>
         <input type="number" name="heart_rate" class="form-control form-control-lg" required>
       </div>
       <div class="col-md-6">
-        <label class="form-label fw-semibold">🫁 SpO₂ (%)</label>
+        <label class="form-label fw-semibold">🫁 {% trans "SpO₂ (%)" %}</label>
         <input type="number" step="0.1" name="spo2" class="form-control form-control-lg" required>
       </div>
       <div class="col-md-6">
-        <label class="form-label fw-semibold">🌬️ Breathing Rate</label>
+        <label class="form-label fw-semibold">🌬️ {% trans "Breathing Rate" %}</label>
         <input type="number" step="0.1" name="breathing_rate" class="form-control form-control-lg" required>
       </div>
       <div class="col-md-6">
-        <label class="form-label fw-semibold">🌡️ Temperature (°C)</label>
+        <label class="form-label fw-semibold">🌡️ {% trans "Temperature (°C)" %}</label>
         <input type="number" step="0.1" name="temperature" class="form-control form-control-lg" required>
       </div>
       <div class="col-md-6">
-        <label class="form-label fw-semibold">📏 Height (cm)</label>
+        <label class="form-label fw-semibold">📏 {% trans "Height (cm)" %}</label>
         <input type="number" step="0.1" name="height_cm" class="form-control form-control-lg" value="{{ student.height_cm }}">
       </div>
       <div class="col-md-6">
-        <label class="form-label fw-semibold">⚖️ Weight (kg)</label>
+        <label class="form-label fw-semibold">⚖️ {% trans "Weight (kg)" %}</label>
         <input type="number" step="0.1" name="weight_kg" class="form-control form-control-lg" value="{{ student.weight_kg }}">
       </div>
 
       <div class="d-flex justify-content-between mt-4">
         <a href="{% url 'classroom_detail' vc.id %}" class="btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm">
-          ← Back
+          ← {% trans "Back" %}
         </a>
         <button type="submit" class="btn btn-success rounded-pill px-4 py-2 shadow-sm">
-          Save & Check →
+          {% trans "Save & Check" %} →
         </button>
       </div>
     </form>
@@ -76,12 +77,12 @@
         {% endif %}
 
         <h3 class="fw-bold mt-3">{{ prediction_label }}</h3>
-        <p class="text-muted mb-4">Prediction Score: <strong>{{ prediction_score }}</strong></p>
+        <p class="text-muted mb-4">{% trans "Prediction Score" %}: <strong>{{ prediction_score }}</strong></p>
 
         <div class="d-flex justify-content-center gap-3">
           <!-- ✅ NEXT STUDENT BUTTON -->
           <a href="?idx={{ idx|add:1 }}" class="btn btn-success rounded-pill px-4 shadow-sm">
-            🧑‍🎓 Next Student →
+            🧑‍🎓 {% trans "Next Student" %} →
           </a>
 
           <!-- ✅ SEND ALERT BUTTON -->
@@ -90,7 +91,7 @@
             {% csrf_token %}
             <input type="hidden" name="alert" value="1">
             <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">
-              📧 Send Alert
+              📧 {% trans "Send Alert" %}
             </button>
           </form>
           {% endif %}
@@ -112,11 +113,11 @@
     <div class="modal-content text-center p-4 rounded-4 shadow-lg border-3 border-warning">
       <div class="modal-body">
         <div style="font-size:4rem;" class="emoji-bounce">⚠️</div>
-        <h4 class="fw-bold text-warning mt-3">Invalid Parent Email</h4>
-        <p class="text-muted">The registered parent email is invalid or missing.<br>
-          Please update it before sending alerts.</p>
+        <h4 class="fw-bold text-warning mt-3">{% trans "Invalid Parent Email" %}</h4>
+        <p class="text-muted">{% trans "The registered parent email is invalid or missing." %}<br>
+          {% trans "Please update it before sending alerts." %}</p>
         <div class="mt-3">
-          <a href="?idx={{ idx|add:1 }}" class="btn btn-success rounded-pill px-4 py-2 shadow-sm">Next Student →</a>
+          <a href="?idx={{ idx|add:1 }}" class="btn btn-success rounded-pill px-4 py-2 shadow-sm">{% trans "Next Student" %} →</a>
         </div>
       </div>
     </div>

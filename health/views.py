@@ -2,9 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+
+from classroom.models import VirtualClassroom
 from .models import VitalRecord
 from accounts.models import StudentProfile, TeacherProfile
 from ai_engine.utils import predict_health
+from ai_engine.translate import get_translated_text
+from accounts.models import StudentProfile, Notification, JoinRequest
 
 
 # 🩺 ADD VITAL RECORD
@@ -85,43 +89,61 @@ def student_dashboard(request):
 # 🧑‍🏫 TEACHER DASHBOARD
 @login_required
 def teacher_dashboard(request):
-    """Teacher view of all students and quick vital submissions."""
-    teacher = get_object_or_404(TeacherProfile, user=request.user)
-    school = teacher.user.school
+    """Display teacher dashboard with classes, notifications, and pending join requests."""
+    teacher = request.user
+    school = getattr(teacher, 'school', None)
 
-    # All students in teacher's school
-    students = StudentProfile.objects.filter(user__school=school).order_by('class_name', 'section', 'roll_no')
+    # ✅ Restrict to teachers only
+    if not getattr(teacher, "is_teacher", False):
+        messages.error(request, "Access denied: only teachers can access this page.")
+        return redirect('student_dashboard')
 
+    # ✅ Notifications
+    notifications = Notification.objects.filter(teacher=teacher).order_by('-created_at')
+    unread_count = notifications.filter(is_read=False).count()
+    Notification.objects.filter(teacher=teacher, is_read=False).update(is_read=True)
+
+    # ✅ Virtual classes
+    classes = VirtualClassroom.objects.filter(teacher=teacher)
+
+    # ✅ Pending join requests (students waiting for approval)
+    pending_requests = JoinRequest.objects.filter(
+        teacher=teacher, approved=False
+    ).select_related('student__user')
+
+    # ✅ Handle new class creation
     if request.method == 'POST':
-        student_id = request.POST.get('student_id')
-        try:
-            student = StudentProfile.objects.get(id=student_id)
-            hr = float(request.POST.get('heart_rate'))
-            spo2 = float(request.POST.get('spo2'))
-            br = float(request.POST.get('breathing_rate'))
-            temp = float(request.POST.get('temperature'))
+        class_name = request.POST.get('class_name')
+        section = request.POST.get('section')
 
-            score, label = predict_health(hr, spo2, br, temp, student.weight_kg, student.height_cm)
+        if not school:
+            messages.error(request, 'You are not assigned to any school.')
+            return redirect('teacher_dashboard')
 
-            VitalRecord.objects.create(
-                student=student,
-                heart_rate=hr,
-                spo2=spo2,
-                breathing_rate=br,
-                temperature_c=temp,
-                prediction_score=score,
-                prediction_label=label
+        if VirtualClassroom.objects.filter(school=school, class_name=class_name, section=section).exists():
+            messages.warning(request, f"⚠️ Class {class_name}-{section} already exists.")
+        else:
+            vc = VirtualClassroom.objects.create(
+                school=school,
+                teacher=teacher,
+                class_name=class_name,
+                section=section
             )
-            messages.success(request, f"✅ Vitals added for {student.user.username}")
-        except StudentProfile.DoesNotExist:
-            messages.error(request, "❌ Student not found.")
-        except ValueError:
-            messages.error(request, "Invalid input values.")
+            messages.success(request, f"🏫 Class {vc.class_name}-{vc.section} created successfully!")
 
         return redirect('teacher_dashboard')
 
-    context = {
-        'teacher': teacher,
-        'students': students,
-    }
-    return render(request, 'health/teacher_dashboard.html', context)
+    # ✅ Add student counts
+    for c in classes:
+        c.student_count = c.students.count()
+
+    return render(
+        request,
+        'health/teacher_dashboard.html',
+        {
+            'classes': classes,
+            'notifications': notifications,
+            'unread_count': unread_count,
+            'pending_requests': pending_requests,
+        }
+    )

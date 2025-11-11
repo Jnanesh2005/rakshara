@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ request.session.django_language|default:'en' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,56 +13,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fb;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        nav.navbar {
-            background: linear-gradient(135deg, #007bff, #00c6ff);
-        }
-
-        .navbar-brand {
-            font-weight: 600;
-            color: white !important;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-link {
-            color: #f8f9fa !important;
-            font-weight: 500;
-        }
-
-        .nav-link:hover {
-            text-decoration: underline;
-        }
-
-        main {
-            flex: 1;
-            padding: 30px 15px;
-        }
-
-        footer {
-            background-color: #f1f3f5;
-            text-align: center;
-            padding: 12px;
-            color: #555;
-            font-size: 14px;
-            border-top: 1px solid #dee2e6;
-        }
-
-        /* Alerts */
-        .alert {
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .container {
-            max-width: 1100px;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fb; min-height: 100vh; display: flex; flex-direction: column; }
+        nav.navbar { background: linear-gradient(135deg, #007bff, #00c6ff); }
+        .navbar-brand { font-weight: 600; color: white !important; letter-spacing: 0.5px; }
+        .nav-link { color: #f8f9fa !important; font-weight: 500; }
+        .nav-link:hover { text-decoration: underline; }
+        main { flex: 1; padding: 30px 15px; }
+        footer { background-color: #f1f3f5; text-align: center; padding: 12px; color: #555; font-size: 14px; border-top: 1px solid #dee2e6; }
+        .alert { border-radius: 10px; margin-bottom: 1rem; }
+        .container { max-width: 1100px; }
+        .lang-select { border: none; background: white; padding: 5px 8px; border-radius: 6px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -70,30 +30,31 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">Rakshara</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-center">
+                    <!-- 🌐 Language Selector -->
+                    <li class="nav-item me-3">
+                        <form method="post" action="{% url 'set_language' %}">
+                            {% csrf_token %}
+                            <select name="language" class="lang-select" onchange="this.form.submit()">
+                                <option value="en" {% if request.session.django_language == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                                <option value="kn" {% if request.session.django_language == 'kn' %}selected{% endif %}>🇮🇳 ಕನ್ನಡ</option>
+                                <option value="hi" {% if request.session.django_language == 'hi' %}selected{% endif %}>🇮🇳 हिन्दी</option>
+                            </select>
+                        </form>
+                    </li>
+
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <span class="nav-link disabled">Hello, {{ user.username }}</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                        </li>
+                        <li class="nav-item"><span class="nav-link disabled">Hello, {{ user.username }}</span></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">{{ _("LOGOUT") }}</a></li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'student_register' %}">Student Sign Up</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'teacher_register' %}">Teacher Sign Up</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">{{ _("LOGIN") }}</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'student_register' %}">{{ _("STUDENT_SIGNUP") }}</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'teacher_register' %}">{{ _("TEACHER_SIGNUP") }}</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -105,9 +66,7 @@
         <div class="container">
             {% if messages %}
                 {% for m in messages %}
-                    <div class="alert alert-{{ m.tags }} shadow-sm text-center" role="alert">
-                        {{ m }}
-                    </div>
+                    <div class="alert alert-{{ m.tags }} shadow-sm text-center">{{ m }}</div>
                 {% endfor %}
             {% endif %}
             {% block content %}{% endblock %}
@@ -115,11 +74,8 @@
     </main>
 
     <!-- ✅ Footer -->
-    <footer>
-        © {{ now|date:"Y" }} Rakshara | Empowering Smart Health Monitoring
-    </footer>
+    <footer>© {{ now|date:"Y" }} Rakshara | Empowering Smart Health Monitoring</footer>
 
-    <!-- ✅ Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

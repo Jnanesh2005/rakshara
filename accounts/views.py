@@ -267,3 +267,18 @@ def verify_teacher_login_otp(request):
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
     return render(request, 'accounts/verify_teacher_otp.html', {'email': user.email})
+
+# 🌐 LANGUAGE SWITCHER VIEW
+from django.utils import translation
+
+def set_language(request):
+    """Update user's language preference and reload page."""
+    if request.method == "POST":
+        lang = request.POST.get("language", "en")
+        if lang in ["en", "kn", "hi"]:
+            request.session["django_language"] = lang
+            translation.activate(lang)
+            messages.success(request, f"🌐 Language changed to {lang.upper()}")
+        else:
+            messages.error(request, "Invalid language selected.")
+    return redirect(request.META.get("HTTP_REFERER", "home"))

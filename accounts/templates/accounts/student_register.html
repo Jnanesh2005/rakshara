@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block content %}
 <div class="register-container d-flex align-items-center justify-content-center">
   <div class="register-card p-4 p-md-5 shadow-lg rounded-4 bg-white text-center animate-fade-in">
 
-    <h2 class="fw-bold text-gradient mb-3">🎓 Student Registration</h2>
-    <p class="text-muted mb-4">Create your account to start using <strong>Rakshara</strong></p>
+    <h2 class="fw-bold text-gradient mb-3">🎓 {% trans "Student Registration" %}</h2>
+    <p class="text-muted mb-4">{% trans "Create your account to start using" %} <strong>Rakshara</strong></p>
 
     <form method="post" class="text-start">
       {% csrf_token %}
@@ -13,26 +14,26 @@
 
         <!-- 🧑‍🤝‍🧑 Parent Email Field -->
         <div class="col-12">
-          <label for="parent_email" class="form-label fw-semibold">📧 Parent Email Address</label>
+          <label for="parent_email" class="form-label fw-semibold">📧 {% trans "Parent Email Address" %}</label>
           <input 
             type="email" 
             name="parent_email" 
             id="parent_email" 
             class="form-control" 
-            placeholder="Enter parent's email address (for alerts)" 
+            placeholder="{% trans "Enter parent's email address (for alerts)" %}" 
             required>
-          <small class="text-muted">Used to send health alerts if student shows mild or critical conditions.</small>
+          <small class="text-muted">{% trans "Used to send health alerts if student shows mild or critical conditions." %}</small>
         </div>
       </div>
 
       <button type="submit" class="btn btn-success w-100 rounded-pill py-2 mt-3 shadow-sm">
-        🚀 Register
+        🚀 {% trans "Register" %}
       </button>
     </form>
 
     <hr class="my-4">
-    <p class="text-muted mb-1">Already have an account?</p>
-    <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4">🔑 Login</a>
+    <p class="text-muted mb-1">{% trans "Already have an account?" %}</p>
+    <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4">🔑 {% trans "Login" %}</a>
 
     {% if messages %}
     <div class="mt-3">

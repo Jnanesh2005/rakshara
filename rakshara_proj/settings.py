@@ -7,7 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/4.2/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/4.2/ref/settings/
+https://docs.djangoproject.com/en/4.2/ref/settings/#i18n/
 """
 
 from pathlib import Path
@@ -47,6 +47,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # ✅ Add LocaleMiddleware for language switching based on session/cookie
+    'django.middleware.locale.LocaleMiddleware', 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',  # ✅ Must be here
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -110,11 +112,22 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# 👇 Ensure these are configured for i18n
+USE_I18N = True
+LANGUAGE_CODE = 'en-us' # Default language
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('kn', 'Kannada'),
+    ('hi', 'Hindi'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale'
+]
+# 👆 End i18n configuration
 
 TIME_ZONE = 'UTC'
-
-USE_I18N = True
 
 USE_TZ = True
 

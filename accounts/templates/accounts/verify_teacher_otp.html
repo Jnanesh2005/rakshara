@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block content %}
 <div class="otp-container d-flex align-items-center justify-content-center">
   <div class="otp-card p-4 p-md-5 shadow-lg rounded-4 bg-white text-center animate-fade-in">
-    <h2 class="fw-bold text-gradient mb-3">🔐 Verify OTP</h2>
-    <p class="text-muted mb-4">A 6-digit verification code has been sent to your email: <br><strong>{{ email }}</strong></p>
+    <h2 class="fw-bold text-gradient mb-3">🔐 {% trans "Verify OTP" %}</h2>
+    <p class="text-muted mb-4">{% blocktrans %}A 6-digit verification code has been sent to your email:{% endblocktrans %} <br><strong>{{ email }}</strong></p>
 
     <form method="post" class="text-center">
       {% csrf_token %}
@@ -14,7 +15,7 @@
       </div>
 
       <button type="submit" class="btn btn-success w-100 rounded-pill py-2 mt-2 shadow-sm">
-        ✅ Verify & Continue
+        ✅ {% trans "Verify & Continue" %}
       </button>
     </form>
 
@@ -29,8 +30,8 @@
     {% endif %}
 
     <hr class="my-4">
-    <p class="text-muted small">Didn’t receive the OTP?</p>
-    <a href="#" class="btn btn-outline-primary rounded-pill px-4 small">🔁 Resend OTP</a>
+    <p class="text-muted small">{% trans "Didn’t receive the OTP?" %}</p>
+    <a href="#" class="btn btn-outline-primary rounded-pill px-4 small">🔁 {% trans "Resend OTP" %}</a>
   </div>
 </div>
 

@@ -7,6 +7,7 @@ from health.models import VitalRecord
 from health.utils import predict_health
 from django.core.mail import send_mail
 from django.conf import settings
+from ai_engine.translate import get_translated_text
 
 # 🧩 Teacher Dashboard
 @login_required

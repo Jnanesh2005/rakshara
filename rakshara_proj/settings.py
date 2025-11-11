@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'accounts',
     'health',
     'classroom',
+    'ai_engine',
+  
 ]
 
 MIDDLEWARE = [

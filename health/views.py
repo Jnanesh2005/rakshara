@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from .models import VitalRecord
 from accounts.models import StudentProfile, TeacherProfile
-from .utils import predict_health
+from ai_engine.utils import predict_health
 
 
 # 🩺 ADD VITAL RECORD

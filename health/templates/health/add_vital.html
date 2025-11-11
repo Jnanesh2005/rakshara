@@ -1,88 +1,124 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="container d-flex align-items-center justify-content-center py-5">
-  <div class="card p-4 shadow-lg rounded-4" style="max-width:600px;width:100%;">
-    <h2 class="text-center fw-bold text-gradient mb-4">🩺 Add Health Vitals</h2>
+{% load i18n %}
+{% block title %}{% trans "Add Health Vitals" %}{% endblock %}
 
-    <form method="post" id="vitalForm">
-      {% csrf_token %}
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Heart Rate (bpm)</label>
-          <input type="number" name="heart_rate" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">SpO₂ (%)</label>
-          <input type="number" name="spo2" step="0.1" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Breathing Rate</label>
-          <input type="number" name="breathing_rate" step="0.1" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Temperature (°C)</label>
-          <input type="number" name="temperature" step="0.1" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Height (cm)</label>
-          <input type="number" name="height_cm" step="0.1" class="form-control" value="{{ student.height_cm }}">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Weight (kg)</label>
-          <input type="number" name="weight_kg" step="0.1" class="form-control" value="{{ student.weight_kg }}">
-        </div>
-      </div>
-      <button type="submit" class="btn btn-success w-100 mt-4 rounded-pill">Submit</button>
-    </form>
-  </div>
+{% block content %}
+<div class="auth-page-wrapper">
+    <div class="auth-card animate-fade-in-up">
+        
+        <h1 class="auth-title">{% trans "Add Health Vitals" %}</h1>
+        <p class="auth-subtitle">{% trans "Enter your current health readings." %}</p>
+
+        <form method="post" id="vitalForm" class="needs-loader">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">{% trans "Heart Rate (bpm)" %}</label>
+                    <input type="number" name="heart_rate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% trans "SpO₂ (%)" %}</label>
+                    <input type="number" name="spo2" step="0.1" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% trans "Breathing Rate" %}</label>
+                    <input type="number" name="breathing_rate" step="0.1" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% trans "Temperature (°C)" %}</label>
+                    <input type="number" name="temperature" step="0.1" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% trans "Height (cm)" %}</label>
+                    <input type="number" name="height_cm" step="0.1" class="form-control" value="{{ student.height_cm }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% trans "Weight (kg)" %}</label>
+                    <input type="number" name="weight_kg" step="0.1" class="form-control" value="{{ student.weight_kg }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success" style="width:100%;">{% trans "Submit" %}</button>
+        </form>
+    </div>
 </div>
 
-<!-- ✅ Health Result Modal -->
 {% if prediction_label %}
-<div class="modal fade show" id="resultModal" tabindex="-1" style="display:block; background:rgba(0,0,0,0.6);" aria-modal="true" role="dialog">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center p-4 rounded-4 shadow-lg">
-      <div class="modal-body">
-        {% if prediction_label == "Healthy" %}
-          <div style="font-size:4rem;">😄</div>
-        {% elif prediction_label == "Mild" %}
-          <div style="font-size:4rem;">😐</div>
-        {% else %}
-          <div style="font-size:4rem;">😟</div>
+<div class="modal-overlay" id="resultModal">
+    {% with prediction_label|lower as prediction_lower %}
+    <div class="modal-card animate-fade-in-up 
+        {% if "healthy" in prediction_lower %}status-healthy
+        {% elif "mild" in prediction_lower or "moderate" in prediction_lower %}status-mild
+        {% else %}status-critical
         {% endif %}
-        <h3 class="fw-bold mt-3">{{ prediction_label }}</h3>
-        <p class="text-muted">Prediction Score: <strong>{{ prediction_score }}</strong></p>
-        <button id="okBtn" class="btn btn-primary rounded-pill px-4 mt-3">OK</button>
-      </div>
+    ">
+        <h3 class="modal-title">{{ prediction_label }}</h3>
+        <p class="modal-text">{% trans "Prediction Score" %}: <strong>{{ prediction_score }}</strong></p>
+        <button id="okBtn" class="btn btn-primary">{% trans "OK" %}</button>
     </div>
-  </div>
+    {% endwith %}
 </div>
 {% endif %}
 
+<style>
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem; /* Added vertical gap */
+    }
+    @media (max-width: 576px) {
+        .form-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+    .modal-card {
+        background: var(--color-surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        /* NEW: Added status border */
+        border-top: 5px solid var(--color-border);
+    }
+    
+    /* NEW: Modal Status Colors */
+    .modal-card.status-healthy { border-top-color: var(--color-success); }
+    .modal-card.status-mild { border-top-color: var(--color-warning); }
+    .modal-card.status-critical { border-top-color: var(--color-danger); }
+
+    /* Removed .modal-emoji */
+    .modal-title { 
+        font-size: 1.75rem; 
+        color: var(--color-text); 
+        margin-top: 0.5rem; /* Added margin */
+    }
+    .modal-text { font-size: 1rem; color: var(--color-text-muted); }
+    .modal-card .btn { width: 100%; margin-top: 1.5rem; }
+</style>
+{% endblock %}
+
+{% block scripts %}
 <script>
-  // ✅ Redirect to dashboard when OK is clicked
   document.addEventListener("DOMContentLoaded", () => {
     const okBtn = document.getElementById("okBtn");
     if (okBtn) {
       okBtn.addEventListener("click", () => {
+        // Hide modal and redirect
+        document.getElementById("resultModal").style.display = 'none';
         window.location.href = "{% url 'student_dashboard' %}";
       });
     }
   });
 </script>
-
-<style>
-.text-gradient {
-  background: linear-gradient(90deg, #007bff, #00c6ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.modal-content {
-  animation: popIn 0.5s ease;
-}
-@keyframes popIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-</style>
 {% endblock %}

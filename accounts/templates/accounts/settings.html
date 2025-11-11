@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Settings" %}{% endblock %}
+
+{% block content %}
+<div class="card animate-fade-in-up">
+    <div class="card-header">
+        <h3>{% trans "Settings" %}</h3>
+    </div>
+    
+    <div class="setting-item">
+        <div class="setting-label">
+            <h4 class="content-subtitle">{% trans "Dark Mode" %}</h4>
+            <p>{% trans "Toggle dark or light theme for the entire website." %}</p>
+        </div>
+        <div class="setting-control">
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+</div>
+
+<style>
+    .content-subtitle {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-top: 0; /* Removed margin */
+        margin-bottom: 0.25rem;
+    }
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+    }
+    .setting-label p {
+        margin-bottom: 0;
+    }
+
+    /* --- Toggle Switch CSS --- */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--color-border);
+        transition: .4s;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+    }
+    input:checked + .slider {
+        background-color: var(--color-primary);
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    .slider.round {
+        border-radius: 34px;
+    }
+    .slider.round:before {
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// This script runs only on the settings page
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        // 1. Set the toggle to the correct position on page load
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            themeToggle.checked = true;
+        }
+
+        // 2. Add listener to call the global theme function
+        themeToggle.addEventListener('change', () => {
+            // This function is defined in base.html
+            window.toggleTheme(); 
+        });
+    }
+});
+</script>
+{% endblock %}

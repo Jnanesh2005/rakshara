@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from .forms import StudentSignUpForm, TeacherSignUpForm
@@ -12,10 +12,10 @@ from .models import User
 import random
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils import translation
 
 
 # 🧩 STUDENT REGISTRATION
-
 def student_register(request):
     if request.method == "POST":
         form = StudentSignUpForm(request.POST)
@@ -81,17 +81,15 @@ def student_register(request):
                 request,
                 f"✅ Account created successfully! Your Student ID: {profile.student_code}"
             )
-            return redirect('student_dashboard')
+            return redirect('student_dashboard') # Assumes this is in another app's urls
         else:
             messages.error(request, "⚠️ Please correct the errors below.")
     else:
         form = StudentSignUpForm()
 
     return render(request, 'accounts/student_register.html', {'form': form})
-# 🧩 TEACHER REGISTRATION
-from django.core.mail import send_mail
-from django.conf import settings
 
+# 🧩 TEACHER REGISTRATION
 def teacher_register(request):
     if request.method == "POST":
         form = TeacherSignUpForm(request.POST)
@@ -136,14 +134,13 @@ def home(request):
     user = request.user
     if user.is_authenticated:
         if getattr(user, "is_teacher", False):
-            return redirect('teacher_dashboard')
+            return redirect('teacher_dashboard') # Assumes this is in another app's urls
         elif getattr(user, "is_student", False):
-            return redirect('student_dashboard')
+            return redirect('student_dashboard') # Assumes this is in another app's urls
     return render(request, 'home.html')
 
 
-
-
+# 🔑 LOGIN
 def login_view(request):
     if request.method == "POST":
         username_or_id = request.POST.get("username")
@@ -185,7 +182,7 @@ def login_view(request):
                 # ✅ Students log in directly (no OTP)
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.username}!")
-                return redirect('student_dashboard')
+                return redirect('student_dashboard') # Assumes this is in another app's urls
             else:
                 # Generic fallback for admins
                 login(request, user)
@@ -201,9 +198,6 @@ def logout_view(request):
     django_logout(request)
     messages.info(request, "👋 You have been logged out successfully.")
     return redirect('home')
-from django.shortcuts import get_object_or_404
-
-
 
 
 # -----------------------------------------
@@ -233,7 +227,7 @@ def verify_teacher_signup_otp(request):
             # ✅ Auto-login after verification
             login(request, user)
             messages.success(request, f"✅ Welcome, {user.username}! Your account is verified and active.")
-            return redirect('teacher_dashboard')
+            return redirect('teacher_dashboard') # Assumes this is in another app's urls
         else:
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
@@ -262,15 +256,13 @@ def verify_teacher_login_otp(request):
             login(request, user)
             del request.session['pending_login_user_id']
             messages.success(request, f"✅ Welcome back, {user.username}!")
-            return redirect('teacher_dashboard')
+            return redirect('teacher_dashboard') # Assumes this is in another app's urls
         else:
             messages.error(request, "❌ Invalid OTP. Please try again.")
 
     return render(request, 'accounts/verify_teacher_otp.html', {'email': user.email})
 
 # 🌐 LANGUAGE SWITCHER VIEW
-from django.utils import translation
-
 def set_language(request):
     """Update user's language preference and reload page."""
     if request.method == "POST":
@@ -282,3 +274,22 @@ def set_language(request):
         else:
             messages.error(request, "Invalid language selected.")
     return redirect(request.META.get("HTTP_REFERER", "home"))
+
+
+# -----------------------------------------
+# 🔗 NEW PLACEHOLDER PAGES (Settings, Help, FAQ)
+# -----------------------------------------
+
+def settings_page(request):
+    """Renders the user settings page."""
+    return render(request, 'accounts/settings.html')
+
+# 👇 Decorator REMOVED. This page is now public.
+def help_center_page(request):
+    """Renders the help center page."""
+    return render(request, 'accounts/help_center.html')
+
+# 👇 Decorator REMOVED. This page is now public.
+def faq_page(request):
+    """Renders the FAQ page."""
+    return render(request, 'accounts/faq.html')

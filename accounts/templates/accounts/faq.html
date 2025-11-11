@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "FAQ" %}{% endblock %}
+
+{% block content %}
+<div class="card animate-fade-in-up">
+    <div class="card-header">
+        <h3>{% trans "Frequently Asked Questions" %}</h3>
+    </div>
+    
+    <div class="faq-item">
+        <h4 class="content-subtitle">{% trans "What is Rakshara?" %}</h4>
+        <p>{% trans "Rakshara is a digital health monitoring platform designed for schools. It allows teachers to easily log and track the vital health data of students, with AI-powered insights to help identify potential health concerns early." %}</p>
+    </div>
+
+    <div class="faq-item">
+        <h4 class="content-subtitle">{% trans "How do I reset my password?" %}</h4>
+        <p>{% trans "You can reset your password from the login page by clicking the 'Forgot Password' link. If you are already logged in, you can change your password from the 'Settings' page, available in the main menu." %}</p>
+    </div>
+
+    <div class="faq-item">
+        <h4 class="content-subtitle">{% trans "Is my data secure?" %}</h4>
+        <p>{% trans "Yes, all data is encrypted both in transit and at rest. We follow strict privacy protocols (such as HIPAA and FERPA guidelines) to ensure all student and teacher data is protected and confidential." %}</p>
+    </div>
+
+    <div class="faq-item">
+        <h4 class="content-subtitle">{% trans "How do I add a student to my class?" %}</h4>
+        <p>{% trans "You do not add students manually. Students will register for your school and select their class. You will then see a 'Pending Join Request' on your teacher dashboard, which you must approve to add them to your roster." %}</p>
+    </div>
+    
+    <div class="faq-item">
+        <h4 class="content-subtitle">{% trans "Who receives health alerts?" %}</h4>
+        <p>{% trans "When a student's health reading is flagged as 'Mild' or 'Critical', the class teacher is notified. The teacher then has the option to send an immediate alert to the parent's registered email address." %}</p>
+    </div>
+
+</div>
+
+<style>
+    .content-subtitle {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .faq-item {
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    .faq-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Help Center" %}{% endblock %}
+
+{% block content %}
+<div class="card animate-fade-in-up">
+    <div class="card-header">
+        <h3>{% trans "Help Center" %}</h3>
+    </div>
+    
+    <p>{% trans "Welcome to the Rakshara Help Center. Here you can find resources and get in touch with our support team." %}</p>
+
+    <h4 class="content-subtitle">{% trans "Quick Links" %}</h4>
+    <ul class="link-list">
+        <li><a href="{% url 'faq' %}">{% trans "Frequently Asked Questions (FAQ)" %}</a></li>
+        <li><a href="#">{% trans "User Guide: For Teachers" %}</a></li>
+        <li><a href="#">{% trans "User Guide: For Students" %}</a></li>
+        <li><a href="#">{% trans "How to add a student" %}</a></li>
+        <li><a href="#">{% trans "How to take a health reading" %}</a></li>
+    </ul>
+
+    <hr class="content-divider">
+
+    <h4 class="content-subtitle">{% trans "Contact Support" %}</h4>
+    <p>{% trans "If you cannot find an answer to your question, please feel free to reach out to us directly." %}</p>
+    <p><strong>{% trans "Email" %}:</strong> support@rakshara.com</p>
+    <p><strong>{% trans "Phone" %}:</strong> +1 (555) 123-4567</p>
+
+</div>
+
+<style>
+    .content-subtitle {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .content-divider {
+        margin: 2rem 0;
+        border: 0;
+        border-top: 1px solid var(--color-border);
+    }
+    .link-list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .link-list li {
+        margin-bottom: 0.5rem;
+    }
+    .link-list li a {
+        font-weight: 600;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

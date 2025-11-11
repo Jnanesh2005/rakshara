@@ -1,90 +1,170 @@
 {% extends 'base.html' %}
 {% load i18n %}
+
+{% block title %}{% trans "Login" %} - Rakshara Health{% endblock %}
+
 {% block content %}
-<div class="login-container d-flex align-items-center justify-content-center">
-  <div class="login-card p-4 p-md-5 shadow-lg rounded-4 bg-white text-center animate-fade-in">
-    <h2 class="fw-bold text-gradient mb-3">{% trans "Welcome Back" %} 👋</h2>
-    <p class="text-muted mb-4">{% trans "Login to continue to" %} <strong>Rakshara</strong></p>
+<div class="auth-page-wrapper">
+    
+    <div class="auth-card animate-fade-in-up">
+        
+        <h1 class="auth-title">{% trans "Welcome Back" %}</h1>
+        <p class="auth-subtitle">{% trans "Login to continue to" %} <strong>Rakshara</strong></p>
 
-    <form method="post" class="text-start">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label class="form-label fw-semibold">{% trans "Username or Student ID" %}</label>
-        <input type="text" name="username" class="form-control form-control-lg rounded-pill" placeholder="{% trans "Enter your username or student ID" %}" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label fw-semibold">{% trans "Password" %}</label>
-        <input type="password" name="password" class="form-control form-control-lg rounded-pill" placeholder="{% trans "Enter your password" %}" required>
-      </div>
-      <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 mt-2 shadow-sm">
-        🔐 {% trans "Login" %}
-      </button>
-    </form>
+        <form method="post" class="auth-form needs-loader">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username" class="form-label">{% trans "Username or Student ID" %}</label>
+                <input type="text" name="username" class="form-control" placeholder="{% trans "Enter your username" %}" required id="id_username">
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password" class="form-label">{% trans "Password" %}</label>
+                <input type="password" name="password" class="form-control" placeholder="{% trans "Enter your password" %}" required id="id_password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                {% trans "Login" %}
+            </button>
+        </form>
 
-    {% if messages %}
-    <div class="mt-3">
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} py-2 rounded-pill small shadow-sm text-center">{{ message }}</div>
-      {% endfor %}
+        <div class="auth-links">
+            <p>{% trans "Don’t have an account?" %}</p>
+            
+            <div class="auth-signup-buttons">
+                <a href="{% url 'student_register' %}" class="btn btn-outline">{% trans "Student Sign Up" %}</a>
+                <a href="{% url 'teacher_register' %}" class="btn btn-outline">{% trans "Teacher Sign Up" %}</a>
+            </div>
+
+        </div>
+
     </div>
-    {% endif %}
-
-    <hr class="my-4">
-    <p class="mb-1 text-muted">{% trans "Don’t have an account?" %}</p>
-    <div class="d-flex justify-content-center gap-2 flex-wrap">
-      <a href="{% url 'student_register' %}" class="btn btn-outline-success rounded-pill px-4">🎓 {% trans "Student Sign Up" %}</a>
-      <a href="{% url 'teacher_register' %}" class="btn btn-outline-info rounded-pill px-4">🧑‍🏫 {% trans "Teacher Sign Up" %}</a>
-    </div>
-  </div>
 </div>
 
 <style>
-/* 🌈 Background Animation */
-.login-container {
-  height: calc(100vh - 120px);
-  background: linear-gradient(-45deg, #007bff, #00c6ff, #6f42c1, #17a2b8);
-  background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
-}
+    .auth-page-wrapper {
+        display: grid;
+        place-items: center;
+        min-height: calc(100vh - 200px); /* Center vertically */
+        padding: 2rem 0;
+    }
+    
+    .auth-card {
+        width: 100%;
+        max-width: 450px;
+        background-color: var(--color-surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Entrance Animation */
+    .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-/* 🎨 Gradient Animation Keyframes */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    /* --- Form Styles --- */
+    .auth-title {
+        text-align: center;
+        font-size: 2rem;
+        color: var(--color-text);
+        margin-bottom: 0.5rem;
+    }
+    .auth-subtitle {
+        text-align: center;
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+    }
 
-/* 💫 Card Styling */
-.login-card {
-  width: 100%;
-  max-width: 420px;
-  background: #ffffffee;
-  backdrop-filter: blur(10px);
-}
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--color-text);
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
 
-.text-gradient {
-  background: linear-gradient(90deg, #007bff, #00c6ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    /* --- Button Styles --- */
+    .btn {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        padding: 0.9rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all var(--transition-speed);
+    }
+    .btn-primary {
+        background-color: var(--color-primary);
+        color: #fff;
+    }
+    .btn-primary:hover {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+        text-decoration: none;
+    }
+    .btn-outline {
+        background-color: var(--color-surface);
+        color: var(--color-primary);
+        border-color: var(--color-border);
+    }
+    .btn-outline:hover {
+        background-color: var(--color-primary-light);
+        border-color: var(--color-primary);
+        text-decoration: none;
+    }
 
-/* ✨ Animation */
-.animate-fade-in {
-  opacity: 0;
-  transform: translateY(15px);
-  animation: fadeInUp 0.9s ease forwards;
-}
-@keyframes fadeInUp {
-  to { opacity: 1; transform: translateY(0); }
-}
+    .auth-links {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-border);
+    }
+    .auth-links p {
+        color: var(--color-text-muted);
+        margin-bottom: 1rem;
+    }
 
-/* Buttons */
-.btn {
-  transition: all 0.3s ease;
-}
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
+    /* --- UPDATED STYLES for Button Spacing --- */
+    .auth-signup-buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap; /* Allows wrapping on small screens */
+        gap: 0.75rem; /* Modern way to add spacing */
+    }
+
+    .auth-links .btn {
+        width: auto; /* Don't make links full-width */
+        margin: 0; /* Remove old margin rule */
+    }
+
 </style>
 {% endblock %}

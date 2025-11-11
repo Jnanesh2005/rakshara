@@ -1,176 +1,321 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+{% block title %}{% trans "Student Dashboard" %}{% endblock %}
+
 {% block content %}
-
-<div class="student-dashboard d-flex align-items-center justify-content-center py-5">
-  <div class="container animate-fade-in">
-
-    <!-- 👩‍🎓 Header -->
-    <div class="card shadow-lg p-4 rounded-4 bg-white mb-4 text-center">
-      <h2 class="fw-bold text-gradient mb-2">{{ profile.user.get_full_name }}'s Dashboard</h2>
-      <p class="text-muted mb-0">🎓 Student ID: <strong>{{ profile.student_code }}</strong></p>
-    </div>
-
-    <!-- 💓 Health Summary -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-4">
-        <div class="summary-card shadow-sm rounded-4 text-center py-4">
-          <h5 class="text-muted">Heart Rate</h5>
-          <h3 class="fw-bold text-danger">{{ latest_vital.heart_rate|default:"--" }} <small>bpm</small></h3>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="summary-card shadow-sm rounded-4 text-center py-4">
-          <h5 class="text-muted">SpO₂</h5>
-          <h3 class="fw-bold text-success">{{ latest_vital.spo2|default:"--" }} <small>%</small></h3>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="summary-card shadow-sm rounded-4 text-center py-4">
-          <h5 class="text-muted">Temperature</h5>
-          <h3 class="fw-bold text-primary">{{ latest_vital.temperature_c|default:"--" }} <small>°C</small></h3>
-        </div>
-      </div>
-    </div>
-
-    <!-- 📊 Health Trends -->
-    <div class="card shadow-lg p-4 rounded-4 mb-4">
-      <h4 class="fw-semibold mb-3 text-gradient">📈 Health Progress</h4>
-      <canvas id="hrChart" height="200"></canvas>
-    </div>
-
-    <!-- 📋 Recent Records -->
-    <div class="card shadow-lg p-4 rounded-4 bg-white mb-4">
-      <h4 class="fw-semibold mb-3 text-gradient">🩺 Recent Health Records</h4>
-      {% if vitals %}
-      <div class="table-responsive">
-        <table class="table table-hover text-center align-middle">
-          <thead class="table-dark">
-            <tr>
-              <th>Date</th>
-              <th>Heart Rate</th>
-              <th>SpO₂</th>
-              <th>Temperature</th>
-              <th>Prediction</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for v in vitals %}
-            <tr>
-              <td>{{ v.recorded_at|date:"M d, H:i" }}</td>
-              <td>{{ v.heart_rate }}</td>
-              <td>{{ v.spo2 }}</td>
-              <td>{{ v.temperature_c }}</td>
-              <td>{{ v.prediction_score }} ({{ v.prediction_label }})</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <p class="text-muted fst-italic">No records available yet.</p>
-      {% endif %}
-    </div>
-
-    <!-- ➕ Add Vitals -->
-    <div class="text-center">
-      <a href="{% url 'add_vital' %}" class="btn btn-success rounded-pill px-4 py-2 shadow-sm">➕ Add New Vitals</a>
-    </div>
-
-  </div>
+<div class="dashboard-header animate-fade-in-up">
+    <h2>{{ profile.user.get_full_name|default:profile.user.username }}'s {% trans "Dashboard" %}</h2>
+    <p>{% trans "Student ID" %}: <strong>{{ profile.student_code }}</strong></p>
 </div>
 
-<!-- 📊 Chart.js -->
+<div class="summary-grid animate-fade-in-up" style="animation-delay: 0.1s;">
+    <div class="card summary-card">
+        <h5>{% trans "Heart Rate" %}</h5>
+        <div class="value" style="--color: var(--color-danger);">
+            {{ latest_vital.heart_rate|default:"--" }} <span>bpm</span>
+        </div>
+    </div>
+    <div class="card summary-card">
+        <h5>{% trans "SpO₂" %}</h5>
+        <div class="value" style="--color: var(--color-success);">
+            {{ latest_vital.spo2|default:"--" }} <span>%</span>
+        </div>
+    </div>
+    <div class="card summary-card">
+        <h5>{% trans "Temperature" %}</h5>
+        <div class="value" style="--color: var(--color-primary);">
+            {{ latest_vital.temperature_c|default:"--" }} <span>°C</span>
+        </div>
+    </div>
+    
+    <div class="add-vitals-container">
+        <a href="{% url 'add_vital' %}" class="btn btn-success">
+            {% trans "Add New Vitals" %}
+        </a>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card animate-fade-in-up" style="animation-delay: 0.2s;">
+        <div class="card-header">
+            <h3>{% trans "Health Progress" %}</h3>
+        </div>
+        <canvas id="healthChart" height="150" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08)); padding: 1rem;"></canvas>
+    </div>
+
+    <div class="card animate-fade-in-up" style="animation-delay: 0.3s;">
+        <div class="card-header">
+            <h3>{% trans "Recent Health Records" %}</h3>
+        </div>
+        <p>{% trans "View all past health checkup records." %}</p>
+        <button id="view-history-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            {% trans "View History" %}
+        </button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="history-modal" style="display: none;">
+    <div class="modal-card animate-fade-in-up">
+        <div class="modal-header">
+            <h3 class="modal-title">{% trans "Recent Health Records" %}</h3>
+            <button id="close-history-modal" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            {% if vitals %}
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Heart Rate" %}</th>
+                            <th>{% trans "SpO₂" %}</th>
+                            <th>{% trans "Temp" %}</th>
+                            <th>{% trans "Status" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in vitals %}
+                        <tr>
+                            <td>{{ v.recorded_at|date:"M d, H:i" }}</td>
+                            <td>{{ v.heart_rate }}</td>
+                            <td>{{ v.spo2 }}</td>
+                            <td>{{ v.temperature_c }}</td>
+                            <td class="status-{{ v.prediction_label|lower }}">{{ v.prediction_label }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>{% trans "No records available yet." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-header { margin-bottom: 2rem; }
+    .dashboard-header h2 { font-size: 2rem; margin-bottom: 0.25rem; }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .summary-card { text-align: center; }
+    .summary-card h5 { color: var(--color-text-muted); font-weight: 600; }
+    .summary-card .value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--color);
+    }
+    .summary-card .value span {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+    }
+    
+    .add-vitals-container {
+        grid-column: 3 / 4;
+        text-align: center;
+        margin-top: -0.5rem;
+    }
+    .add-vitals-container .btn {
+        width: 100%;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+        .summary-grid { grid-template-columns: 1fr; }
+        .add-vitals-container {
+            grid-column: 1 / 2;
+            margin-top: 0;
+        }
+    }
+
+    /* Table Styling */
+    .table-wrapper { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .data-table th, .data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--color-border);
+        vertical-align: middle;
+        text-align: center;
+    }
+    .data-table th { font-weight: 600; background: var(--color-primary-light); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover { background: var(--color-primary-light); }
+    
+    /* Status colors */
+    .status-critical, .status-high { color: var(--color-danger); font-weight: 700; }
+    .status-mild, .status-moderate { color: var(--color-warning); font-weight: 600; }
+    .status-healthy { color: var(--color-success); }
+
+
+    /* --- Modal Styles --- */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+    .modal-card {
+        background: var(--color-surface);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        max-width: 800px;
+        width: 90%;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+    .modal-title { font-size: 1.5rem; margin-bottom: 0; }
+    .modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        line-height: 1;
+    }
+    .modal-close-btn:hover { color: var(--color-danger); }
+    .modal-body {
+        padding: 1.5rem;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const labels = {{ labels|safe }};
-const hrData = {{ hr_data|safe }};
-const spo2Data = {{ spo2_data|safe }};
-const tempData = {{ temp_data|safe }};
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // --- 1. Chart.js ---
+    const labels = {{ labels|safe }};
+    const hrData = {{ hr_data|safe }};
+    const spo2Data = {{ spo2_data|safe }};
+    const tempData = {{ temp_data|safe }};
+    
+    // Get theme colors from CSS variables
+    const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--color-danger').trim();
+    const successColor = getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim();
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim();
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim();
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim();
+    const pointBg = getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim();
 
-new Chart(document.getElementById('hrChart'), {
-  type: 'line',
-  data: {
-    labels: labels,
-    datasets: [
-      {
-        label: 'Heart Rate (bpm)',
-        data: hrData,
-        borderColor: '#dc3545',
-        backgroundColor: 'rgba(220,53,69,0.1)',
-        fill: true,
-        tension: 0.4
+    new Chart(document.getElementById('healthChart'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Heart Rate (bpm)',
+            data: hrData,
+            borderColor: dangerColor,
+            fill: false,
+            tension: 0.4,
+            borderWidth: 3
+          },
+          {
+            label: 'SpO₂ (%)',
+            data: spo2Data,
+            borderColor: successColor,
+            fill: false,
+            tension: 0.4,
+            borderWidth: 3
+          },
+          {
+            label: 'Temperature (°C)',
+            data: tempData,
+            borderColor: primaryColor,
+            fill: false,
+            tension: 0.4,
+            borderWidth: 3
+          }
+        ]
       },
-      {
-        label: 'SpO₂ (%)',
-        data: spo2Data,
-        borderColor: '#28a745',
-        backgroundColor: 'rgba(40,167,69,0.1)',
-        fill: true,
-        tension: 0.4
-      },
-      {
-        label: 'Temperature (°C)',
-        data: tempData,
-        borderColor: '#007bff',
-        backgroundColor: 'rgba(0,123,255,0.1)',
-        fill: true,
-        tension: 0.4
+      options: {
+        responsive: true,
+        plugins: { 
+            legend: { 
+                position: 'top',
+                labels: {
+                    color: textColor,
+                    usePointStyle: true,  // <-- USE SOLID CIRCLES
+                    pointStyle: 'circle' // <-- SPECIFY CIRCLE
+                }
+            } 
+        },
+        scales: {
+          x: { 
+            title: { display: true, text: 'Recorded Time', color: textColor },
+            ticks: { color: textColor },
+            grid: { color: gridColor }
+          },
+          y: { 
+            title: { display: true, text: 'Values', color: textColor },
+            ticks: { color: textColor },
+            grid: { color: gridColor }
+          }
+        },
+        // --- "3D" Point Styling ---
+        elements: {
+            point: {
+                radius: 5,                  // Larger points
+                backgroundColor: pointBg,   // "Beveled" look (white/dark bg)
+                borderWidth: 3,             // Thicker border
+                hoverRadius: 8,
+                hoverBorderWidth: 3
+            }
+        }
       }
-    ]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { position: 'top' } },
-    scales: {
-      x: { title: { display: true, text: 'Recorded Time' } },
-      y: { title: { display: true, text: 'Values' } }
+    });
+
+    // --- 2. Modal Logic ---
+    const viewBtn = document.getElementById('view-history-btn');
+    const closeBtn = document.getElementById('close-history-modal');
+    const modal = document.getElementById('history-modal');
+
+    if (viewBtn && closeBtn && modal) {
+        viewBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     }
-  }
 });
 </script>
-
-<!-- 🌈 Styling -->
-<style>
-.student-dashboard {
-  background: linear-gradient(-45deg, #007bff, #00c6ff, #17a2b8, #6f42c1);
-  background-size: 400% 400%;
-  animation: gradientFlow 15s ease infinite;
-  min-height: calc(100vh - 60px);
-}
-
-.text-gradient {
-  background: linear-gradient(90deg, #007bff, #00c6ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.summary-card {
-  background: #ffffffdd;
-  border: 1px solid #eee;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-.summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.animate-fade-in {
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeInUp 1s ease forwards;
-}
-
-@keyframes fadeInUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes gradientFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-</style>
-
 {% endblock %}

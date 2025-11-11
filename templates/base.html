@@ -1,81 +1,496 @@
+{% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="{{ request.session.django_language|default:'en' }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rakshara</title>
-
-    <!-- ✅ Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- ✅ Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- ✅ Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rakshara Health{% endblock %}</title>
+    
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fb; min-height: 100vh; display: flex; flex-direction: column; }
-        nav.navbar { background: linear-gradient(135deg, #007bff, #00c6ff); }
-        .navbar-brand { font-weight: 600; color: white !important; letter-spacing: 0.5px; }
-        .nav-link { color: #f8f9fa !important; font-weight: 500; }
-        .nav-link:hover { text-decoration: underline; }
-        main { flex: 1; padding: 30px 15px; }
-        footer { background-color: #f1f3f5; text-align: center; padding: 12px; color: #555; font-size: 14px; border-top: 1px solid #dee2e6; }
-        .alert { border-radius: 10px; margin-bottom: 1rem; }
-        .container { max-width: 1100px; }
-        .lang-select { border: none; background: white; padding: 5px 8px; border-radius: 6px; font-weight: 500; }
+        /* --- 1. LIGHT MODE (Default) --- */
+        :root {
+            /* Colors */
+            --color-primary: #4A69E1;
+            --color-primary-dark: #3b55b4;
+            --color-primary-light: #f0f2fe;
+            --color-success: #1AAE70;
+            --color-danger: #E63946;
+            --color-warning: #FF9F43;
+            --color-bg: #f8f9fa;       /* Main page background */
+            --color-surface: #ffffff;   /* Card/widget background */
+            --color-text: #2c3e50;
+            --color-text-muted: #7f8c8d;
+            --color-border: #e0e6ed;
+            --color-gradient: linear-gradient(90deg, var(--color-primary), #6f42c1);
+
+            /* Typography */
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            
+            /* Sizing & Spacing */
+            --border-radius: 12px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 5px 15px rgba(0,0,0,0.08);
+            --transition-speed: 0.3s ease;
+        }
+
+        /* --- 2. DARK MODE --- */
+        [data-theme="dark"] {
+            --color-primary: #5a7cff;
+            --color-primary-dark: #4A69E1;
+            --color-primary-light: #2d3b5e; /* For light hover on dark bg */
+            --color-success: #20c997;
+            --color-danger: #f26b76;
+            --color-warning: #ffc107;
+            --color-bg: #12121c;       /* Dark background */
+            --color-surface: #1e1e2d;   /* Dark card background */
+            --color-text: #f0f2fe;     /* Light text */
+            --color-text-muted: #8a8d9f;
+            --color-border: #3a3a5a;
+        }
+
+        /* --- Global Resets --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        h1, h2, h3, h4, h5, h6 { font-weight: 700; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1rem; color: var(--color-text-muted); }
+        a { color: var(--color-primary); text-decoration: none; transition: color var(--transition-speed); }
+        a:hover { color: var(--color-primary-dark); text-decoration: underline; }
+        img { max-width: 100%; height: auto; }
+
+        /* --- Smart Floating Navbar --- */
+        #main-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background-color: var(--color-surface);
+            box-shadow: var(--shadow-sm); 
+            transition: background-color var(--transition-speed);
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .navbar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        .navbar-logo:hover { text-decoration: none; }
+        .navbar-links { display: flex; align-items: center; gap: 1.5rem; }
+        .navbar-links a { font-weight: 600; color: var(--color-text); }
+        .navbar-links a:hover, .navbar-links a.active {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+        /* Language Selector Styling */
+        .lang-select {
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            color: var(--color-text);
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-family: var(--font-family);
+            cursor: pointer;
+        }
+        .lang-select:focus { outline-color: var(--color-primary); }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* --- Loading Overlay --- */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        [data-theme="dark"] #loading-overlay {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        #loading-overlay.visible { opacity: 1; }
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--color-primary-light);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Toast / Pop-up Banner Container --- */
+        #toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1050;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .toast {
+            min-width: 300px;
+            padding: 1rem 1.5rem;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-left: 5px solid var(--color-text-muted);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        .toast.toast-success { border-left-color: var(--color-success); }
+        .toast.toast-error { border-left-color: var(--color-danger); }
+        .toast.toast-warning { border-left-color: var(--color-warning); }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+
+        /* --- Utility & Animation Classes --- */
+        .animate-fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out 0.2s forwards;
+        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        /* --- Card Styles --- */
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            border: 1px solid var(--color-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+            background: var(--color-primary-light);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        [data-theme="light"] .card-header {
+             background: #fafbfe;
+        }
+        .card-header h3 { margin-bottom: 0; }
+        
+        /* --- Form Styles --- */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background-color: var(--color-surface);
+            color: var(--color-text);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+
+        /* --- Button Styles --- */
+        .btn {
+            display: inline-block;
+            text-align: center;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+        .btn-primary { background-color: var(--color-primary); color: #fff; }
+        .btn-primary:hover { background-color: var(--color-primary-dark); transform: translateY(-2px); box-shadow: var(--shadow-sm); text-decoration: none; color: #fff; }
+        .btn-success { background-color: var(--color-success); color: #fff; }
+        .btn-success:hover { background-color: #148a5b; transform: translateY(-2px); box-shadow: var(--shadow-sm); text-decoration: none; color: #fff; }
+        .btn-danger { background-color: var(--color-danger); color: #fff; }
+        .btn-danger:hover { background-color: #c2303c; transform: translateY(-2px); box-shadow: var(--shadow-sm); text-decoration: none; color: #fff; }
+        .btn-outline { background-color: var(--color-surface); color: var(--color-primary); border-color: var(--color-border); }
+        .btn-outline:hover { background-color: var(--color-primary-light); border-color: var(--color-primary); text-decoration: none; }
+
+        /* --- Auth Page Styles --- */
+        .auth-page-wrapper {
+            display: grid;
+            place-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 2rem 1rem;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--color-surface);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+        }
+        .auth-title { text-align: center; font-size: 2rem; color: var(--color-text); margin-bottom: 0.5rem; }
+        .auth-subtitle { text-align: center; color: var(--color-text-muted); margin-bottom: 2rem; }
+        .auth-form .btn { width: 100%; }
+        .auth-links { text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
+        .auth-links p { color: var(--color-text-muted); margin-bottom: 1rem; }
+        .auth-links .btn { width: auto; margin: 0 0.25rem; }
+        
+        /* --- Dropdown Menu --- */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-toggle-btn {
+            background: none;
+            border: 1px solid transparent; /* Keep alignment */
+            color: var(--color-text);
+            cursor: pointer;
+            padding: 0.35rem 0.5rem; /* Make it clickable */
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+        .dropdown-toggle-btn:hover {
+            background-color: var(--color-border);
+        }
+        .dropdown-menu {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 120%; /* Position below the button */
+            right: 0; /* Align to the right */
+            background-color: var(--color-surface);
+            min-width: 220px;
+            box-shadow: var(--shadow-md);
+            border-radius: 8px;
+            z-index: 1001;
+            overflow: hidden; /* To get border-radius on links */
+            border: 1px solid var(--color-border);
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 0.75rem 1.25rem;
+            color: var(--color-text);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .dropdown-menu a:hover {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+        .dropdown-divider {
+            height: 1px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            background-color: var(--color-border);
+        }
     </style>
 </head>
 <body>
-    <!-- ✅ Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Rakshara</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center">
-                    <!-- 🌐 Language Selector -->
-                    <li class="nav-item me-3">
-                        <form method="post" action="{% url 'set_language' %}">
-                            {% csrf_token %}
-                            <select name="language" class="lang-select" onchange="this.form.submit()">
-                                <option value="en" {% if request.session.django_language == 'en' %}selected{% endif %}>🇬🇧 English</option>
-                                <option value="kn" {% if request.session.django_language == 'kn' %}selected{% endif %}>🇮🇳 ಕನ್ನಡ</option>
-                                <option value="hi" {% if request.session.django_language == 'hi' %}selected{% endif %}>🇮🇳 हिन्दी</option>
-                            </select>
-                        </form>
-                    </li>
-
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><span class="nav-link disabled">Hello, {{ user.username }}</span></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">{{ _("LOGOUT") }}</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">{{ _("LOGIN") }}</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'student_register' %}">{{ _("STUDENT_SIGNUP") }}</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'teacher_register' %}">{{ _("TEACHER_SIGNUP") }}</a></li>
+    
+    <header id="main-header">
+        <nav class="navbar">
+            <a href="{% url 'home' %}" class="navbar-logo">Rakshara</a>
+            <div class="navbar-links">
+                
+                {% if user.is_authenticated %}
+                    {% if user.is_student %}
+                        <a href="{% url 'student_dashboard' %}" class="active">{% trans "Dashboard" %}</a>
+                    {% elif user.is_teacher %}
+                        <a href="{% url 'teacher_dashboard' %}" class="active">{% trans "Dashboard" %}</a>
                     {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+                    <a href="{% url 'logout' %}">{% trans "Logout" %}</a>
 
-    <!-- ✅ Main Content -->
-    <main>
-        <div class="container">
-            {% if messages %}
-                {% for m in messages %}
-                    <div class="alert alert-{{ m.tags }} shadow-sm text-center">{{ m }}</div>
-                {% endfor %}
-            {% endif %}
-            {% block content %}{% endblock %}
-        </div>
+                    <form method="post" action="{% url 'set_language' %}">
+                        {% csrf_token %}
+                        <select name="language" class="lang-select" onchange="this.form.submit()">
+                            <option value="en" {% if request.session.django_language == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                            <option value="kn" {% if request.session.django_language == 'kn' %}selected{% endif %}>🇮🇳 ಕನ್ನಡ</option>
+                            <option value="hi" {% if request.session.django_language == 'hi' %}selected{% endif %}>🇮🇳 हिन्दी</option>
+                        </select>
+                    </form>
+
+                {% else %}
+                    <a href="{% url 'login' %}">{% trans "Login" %}</a>
+
+                    <form method="post" action="{% url 'set_language' %}">
+                        {% csrf_token %}
+                        <select name="language" class="lang-select" onchange="this.form.submit()">
+                            <option value="en" {% if request.session.django_language == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                            <option value="kn" {% if request.session.django_language == 'kn' %}selected{% endif %}>🇮🇳 ಕನ್ನಡ</option>
+                            <option value="hi" {% if request.session.django_language == 'hi' %}selected{% endif %}>🇮🇳 हिन्दी</option>
+                        </select>
+                    </form>
+
+                    <div class="dropdown" id="main-menu-dropdown">
+                        <button class="dropdown-toggle-btn" id="main-menu-toggle" title="Menu">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        </button>
+                        <div class="dropdown-menu" id="main-menu-content">
+                            <a href="{% url 'student_register' %}">{% trans "Sign Up as Student" %}</a>
+                            <a href="{% url 'teacher_register' %}">{% trans "Sign Up as Teacher" %}</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'settings' %}">{% trans "Settings" %}</a>
+                            <a href="{% url 'help_center' %}">{% trans "Help Center" %}</a>
+                            <a href="{% url 'faq' %}">{% trans "FAQ" %}</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
     </main>
 
-    <!-- ✅ Footer -->
-    <footer>© {{ now|date:"Y" }} Rakshara | Empowering Smart Health Monitoring</footer>
+    <div id="loading-overlay">
+        <div class="loader"></div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="toast-container"></div>
+
+    <script>
+        // --- 3. THEME TOGGLING LOGIC ---
+        (function() {
+            // Function to apply the theme
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            }
+
+            // Function to toggle the theme
+            window.toggleTheme = function() {
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(newTheme);
+            }
+
+            // Apply the theme on initial load
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (prefersDark) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light'); // Default
+            }
+        })();
+    </script>
+
+    <script>
+        // This script runs *after* the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Loading Overlay Script ---
+            const overlay = document.getElementById('loading-overlay');
+            window.showLoader = function() {
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    setTimeout(() => overlay.classList.add('visible'), 10);
+                }
+            }
+            window.hideLoader = function() {
+                if (overlay) {
+                    overlay.classList.remove('visible');
+                    setTimeout(() => overlay.style.display = 'none', 300);
+                }
+            }
+            document.querySelectorAll('form.needs-loader').forEach(form => {
+                form.addEventListener('submit', window.showLoader);
+            });
+
+
+            // --- Toast Message Function ---
+            window.showToast = function(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = message;
+                if (type === 'success') toast.classList.add('toast-success');
+                if (type.includes('error')) toast.classList.add('toast-error');
+                if (type === 'warning') toast.classList.add('toast-warning');
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.5s ease forwards';
+                    setTimeout(() => toast.remove(), 500);
+                }, 5000);
+            }
+
+            // --- Capture Django Messages ---
+            {% if messages %}
+            window.addEventListener('load', () => {
+                {% for message in messages %}
+                    showToast("{{ message|escapejs }}", "{{ message.tags }}");
+                {% endfor %}
+            });
+            {% endif %}
+
+            // --- Dropdown Menu Logic ---
+            const menuDropdown = document.getElementById('main-menu-dropdown');
+            if (menuDropdown) {
+                const menuBtn = document.getElementById('main-menu-toggle');
+                const menuContent = document.getElementById('main-menu-content');
+
+                if (menuBtn && menuContent) {
+                    menuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Don't let the click bubble to the document
+                        menuContent.style.display = menuContent.style.display === 'block' ? 'none' : 'block';
+                    });
+
+                    // Close menu if clicking outside
+                    document.addEventListener('click', (e) => {
+                        if (menuContent.style.display === 'block' && !menuDropdown.contains(e.target)) {
+                            menuContent.style.display = 'none';
+                        }
+                    });
+                }
+            }
+
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+
 </body>
 </html>

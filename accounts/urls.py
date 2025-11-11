@@ -10,4 +10,9 @@ urlpatterns = [
     path('verify-signup-otp/', views.verify_teacher_signup_otp, name='verify_teacher_signup_otp'),
     path('verify-login-otp/', views.verify_teacher_login_otp, name='verify_teacher_login_otp'),
     path('set-language/', views.set_language, name='set_language'),
+    # New URLs for placeholder pages
+    path('settings/', views.settings_page, name='settings'),
+    path('help/', views.help_center_page, name='help_center'),
+    path('faq/', views.faq_page, name='faq'),
+
 ]

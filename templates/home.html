@@ -1,94 +1,302 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Welcome to Rakshara" %}{% endblock %}
+
 {% block content %}
-<div class="hero-section text-center text-white d-flex align-items-center justify-content-center flex-column">
-  <div class="content-box mx-auto px-3" style="max-width: 700px;">
-    <h1 class="fw-bold display-4 mb-3 animate-fade-in">
-      {{ _("WELCOME_TO") }} <span class="text-highlight">Rakshara</span>
-    </h1>
+<div class="hero-wrapper">
+    <div class="hero-content">
+        <h1 class="hero-title animate-fade-in-up">
+            {% trans "WELCOME TO RAKSHARA" %}
+        </h1>
+        <p class="hero-subtitle animate-fade-in-up" style="animation-delay: 0.2s;">
+            {% trans "Empowering Health Insights for Schools" %}
+        </p>
 
-    <p class="fs-5 mb-4 animate-fade-in delay-1">
-      {{ _("TAGLINE") }}
+        <div class="hero-actions animate-fade-in-up" style="animation-delay: 0.4s;">
+        {% if user.is_authenticated %}
+            {% if user.is_student %}
+                <a href="{% url 'student_dashboard' %}" class="btn btn-primary">
+                    {% trans "Go to Student Dashboard" %}
+                </a>
+            {% elif user.is_teacher %}
+                <a href="{% url 'teacher_dashboard' %}" class="btn btn-primary">
+                    {% trans "Go to Teacher Dashboard" %}
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'student_register' %}" class="btn btn-primary">
+                {% trans "Sign Up as Student" %}
+            </a>
+            <a href="{% url 'teacher_register' %}" class="btn btn-outline">
+                {% trans "Sign Up as Teacher" %}
+            </a>
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="content-section" id="mission">
+    <h2 class="section-title">{% trans "Our Mission" %}</h2>
+    <p class="section-subtitle" style="font-size: 1.5rem; color: var(--color-text);">
+        "To build a safer and healthier future for every student by providing seamless, intelligent, and proactive health monitoring tools for educational institutions."
     </p>
+</div>
 
-    {% if user.is_authenticated %}
-      {% if user.is_student %}
-        <a href="{% url 'student_dashboard' %}" class="btn btn-light btn-lg rounded-pill shadow-sm mb-2 px-4 animate-fade-in delay-2">
-          🎓 {{ _("GO_TO_STUDENT_DASHBOARD") }}
-        </a>
-      {% elif user.is_teacher %}
-        <a href="{% url 'teacher_dashboard' %}" class="btn btn-light btn-lg rounded-pill shadow-sm mb-2 px-4 animate-fade-in delay-2">
-          🧑‍🏫 {{ _("GO_TO_TEACHER_DASHBOARD") }}
-        </a>
-      {% endif %}
-      <br>
-      <a href="{% url 'logout' %}" class="btn btn-outline-light mt-3 rounded-pill px-4 animate-fade-in delay-3">
-        {{ _("LOGOUT") }}
-      </a>
-    {% else %}
-      <div class="d-flex flex-wrap justify-content-center gap-3 mt-4 animate-fade-in delay-2">
-        <a href="{% url 'login' %}" class="btn btn-light btn-lg rounded-pill shadow-sm px-4">
-          🔑 {{ _("LOGIN") }}
-        </a>
-        <a href="{% url 'student_register' %}" class="btn btn-outline-light btn-lg rounded-pill shadow-sm px-4">
-          🎓 {{ _("STUDENT_SIGNUP") }}
-        </a>
-        <a href="{% url 'teacher_register' %}" class="btn btn-outline-light btn-lg rounded-pill shadow-sm px-4">
-          🧑‍🏫 {{ _("TEACHER_SIGNUP") }}
-        </a>
-      </div>
-    {% endif %}
-  </div>
+<div class="content-section" id="about" style="background-color: var(--color-surface);">
+    <h2 class="section-title">{% trans "What is Rakshara?" %}</h2>
+    <p class="section-subtitle">
+        Rakshara is a comprehensive health monitoring platform designed specifically for schools. Our system allows teachers to perform quick, non-intrusive health checkups, track vital signs over time, and receive AI-powered insights to detect potential health concerns early.
+    </p>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>{% trans "Real-time Monitoring" %}</h3>
+            <p>{% trans "Easily record and track key vitals like heart rate, SpO₂, and temperature for every student in your classroom." %}</p>
+        </div>
+        <div class="feature-card">
+            <h3>{% trans "AI-Powered Insights" %}</h3>
+            <p>{% trans "Our system analyzes trends and flags anomalies, helping to identify potential health issues before they become serious." %}</p>
+        </div>
+        <div class="feature-card">
+            <h3>{% trans "Instant Alerts" %}</h3>
+            <p>{% trans "Automatically notify parents and school administrators in real-time when a student's vitals are in a critical range." %}</p>
+        </div>
+    </div>
+</div>
+
+<div class="content-section" id="team">
+    <h2 class="section-title">{% trans "Meet the Team" %}</h2>
+    <p class="section-subtitle">
+        {% trans "We are a passionate team dedicated to leveraging technology for student well-being." %}
+    </p>
+    <div class="team-grid">
+        <div class="team-card">
+            <div class="team-avatar"></div>
+            <div class="team-info">
+                <h4 class="team-name">Alex Chen</h4>
+                <p class="team-role">Lead Developer & Architect</p>
+            </div>
+        </div>
+        <div class="team-card">
+            <div class="team-avatar"></div>
+            <div class="team-info">
+                <h4 class="team-name">Priya Sharma</h4>
+                <p class="team-role">UI/UX Designer</p>
+            </div>
+        </div>
+        <div class="team-card">
+            <div class="team-avatar"></div>
+            <div class="team-info">
+                <h4 class="team-name">David Lee</h4>
+                <p class="team-role">Backend & AI Engineer</p>
+            </div>
+        </div>
+        <div class="team-card">
+            <div class="team-avatar"></div>
+            <div class="team-info">
+                <h4 class="team-name">Maria Garcia</h4>
+                <p class="team-role">Project Manager</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-section" id="contact" style="background-color: var(--color-surface);">
+    <h2 class="section-title">{% trans "Contact & Support" %}</h2>
+    <p class="section-subtitle">
+        {% trans "Have questions or need help? We're here for you." %}
+    </p>
+    <div class="contact-info">
+        <p><strong>Email:</strong> support@rakshara.com</p>
+        <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+        <p><strong>Address:</strong> 123 Health Ave, Innovation Park, Tech City</p>
+    </div>
 </div>
 
 <style>
-.hero-section {
-  position: relative;
-  width: 100%;
-  height: calc(100vh - 150px);
-  background: linear-gradient(-45deg, #007bff, #00c6ff, #6f42c1, #17a2b8);
-  background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+    /* --- HERO STYLES (Existing) --- */
+    .main-content {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    .hero-wrapper {
+        height: calc(100vh - 80px); 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        color: #fff;
+        overflow: hidden; 
+        background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), 
+                          url("{% static 'stethoscope_bg.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .hero-title {
+        font-size: 3.8rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 1rem;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .hero-subtitle {
+        font-size: 1.35rem;
+        color: rgba(255, 255, 255, 0.95);
+        max-width: 700px;
+        margin: 0 auto 3rem auto;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    }
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: center;
+        gap: 1.5rem;
+    }
+    .hero-actions .btn {
+        padding: 1rem 2rem;
+        font-size: 1.15rem;
+        border-width: 2px;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        transition: all var(--transition-speed);
+        background-color: var(--color-primary);
+        color: #fff;
+        border-color: var(--color-primary);
+    }
+    .hero-actions .btn:hover {
+        background-color: var(--color-primary-dark);
+        border-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .hero-actions .btn-outline {
+        background-color: transparent;
+        color: #fff;
+        border-color: #fff;
+    }
+    .hero-actions .btn-outline:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    /* --- NEW CONTENT SECTION STYLES --- */
+    .content-section {
+        padding: 5rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 1rem;
+    }
+    .section-subtitle {
+        font-size: 1.15rem;
+        color: var(--color-text-muted);
+        max-width: 800px;
+        margin: 0 auto 3rem auto;
+    }
 
-.text-highlight {
-  background: linear-gradient(90deg, #fff, #d0f4ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    /* Feature Grid (About) */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        text-align: left;
+        margin-top: 3rem;
+    }
+    .feature-card {
+        background: #fff;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border);
+    }
+    .feature-card h3 {
+        font-size: 1.25rem;
+        color: var(--color-primary);
+        margin-bottom: 0.75rem;
+    }
+    .feature-card p {
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
 
-.btn { transition: all 0.3s ease-in-out; }
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
+    /* Team Grid */
+    .team-grid {
+        display: grid;
+        /* Updated grid to handle 4 items cleanly */
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+    .team-card {
+        background: var(--color-surface);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border);
+        overflow: hidden;
+        text-align: center;
+    }
+    .team-avatar {
+        height: 250px;
+        background-color: var(--color-border); /* Placeholder for an image */
+    }
+    .team-info {
+        padding: 1.5rem;
+    }
+    .team-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    .team-role {
+        color: var(--color-primary);
+        font-weight: 600;
+        margin-bottom: 0;
+    }
 
-.animate-fade-in {
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeInUp 1s ease forwards;
-}
+    /* Contact Info */
+    .contact-info {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: var(--color-text);
+    }
+    .contact-info p {
+        margin-bottom: 0.5rem;
+    }
 
-.delay-1 { animation-delay: 0.3s; }
-.delay-2 { animation-delay: 0.6s; }
-.delay-3 { animation-delay: 0.9s; }
-
-@keyframes fadeInUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 768px) {
-  .hero-section h1 { font-size: 2rem; }
-  .hero-section p { font-size: 1rem; }
-}
+    /* --- RESPONSIVE FIXES --- */
+    @media (max-width: 992px) {
+        .hero-title { font-size: 3rem; }
+        .hero-subtitle { font-size: 1.2rem; }
+        .hero-actions .btn { padding: 0.9rem 1.6rem; font-size: 1.05rem; }
+    }
+    @media (max-width: 768px) {
+        .hero-title { font-size: 2.2rem; letter-spacing: 1px; }
+        .hero-subtitle { font-size: 1rem; max-width: 90%; }
+        .hero-actions {
+            gap: 1rem;
+        }
+        .content-section {
+            padding: 3rem 1rem;
+        }
+        .section-title {
+            font-size: 2rem;
+        }
+        .section-subtitle {
+            font-size: 1rem;
+        }
+    }
 </style>
 {% endblock %}

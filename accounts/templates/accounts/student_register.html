@@ -1,143 +1,198 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% block title %}{% trans "Student Registration" %}{% endblock %}
+
 {% block content %}
-<div class="register-container d-flex align-items-center justify-content-center">
-  <div class="register-card p-4 p-md-5 shadow-lg rounded-4 bg-white text-center animate-fade-in">
+<div class="auth-page-wrapper">
+    <div class="auth-card animate-fade-in-up" style="max-width: 800px;"> <h1 class="auth-title">{% trans "Student Registration" %}</h1>
+        <p class="auth-subtitle">{% trans "Create your account to start using" %} <strong>Rakshara</strong></p>
 
-    <h2 class="fw-bold text-gradient mb-3">🎓 {% trans "Student Registration" %}</h2>
-    <p class="text-muted mb-4">{% trans "Create your account to start using" %} <strong>Rakshara</strong></p>
+        <form method="post" class="auth-form needs-loader">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="form-group span-2">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
 
-    <form method="post" class="text-start">
-      {% csrf_token %}
-      <div class="form-fields row g-3">
-        {{ form.as_p }}
+                <div class="form-group span-2">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
 
-        <!-- 🧑‍🤝‍🧑 Parent Email Field -->
-        <div class="col-12">
-          <label for="parent_email" class="form-label fw-semibold">📧 {% trans "Parent Email Address" %}</label>
-          <input 
-            type="email" 
-            name="parent_email" 
-            id="parent_email" 
-            class="form-control" 
-            placeholder="{% trans "Enter parent's email address (for alerts)" %}" 
-            required>
-          <small class="text-muted">{% trans "Used to send health alerts if student shows mild or critical conditions." %}</small>
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }}</label>
+                    {{ form.password1 }}
+                    {{ form.password1.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </div>
+
+                <div class="form-group span-2 password-rules">
+                    {{ form.password1.help_text }}
+                </div>
+
+                <div class="form-group span-2">
+                    <label for="{{ form.school.id_for_label }}" class="form-label">{{ form.school.label }}</label>
+                    {{ form.school }}
+                    {{ form.school.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.class_name.id_for_label }}" class="form-label">{{ form.class_name.label }}</label>
+                    {{ form.class_name }}
+                    {{ form.class_name.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.section.id_for_label }}" class="form-label">{{ form.section.label }}</label>
+                    {{ form.section }}
+                    {{ form.section.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.roll_no.id_for_label }}" class="form-label">{{ form.roll_no.label }}</label>
+                    {{ form.roll_no }}
+                    {{ form.roll_no.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.dob.id_for_label }}" class="form-label">{{ form.dob.label }}</label>
+                    {{ form.dob }}
+                    {{ form.dob.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.height_cm.id_for_label }}" class="form-label">{{ form.height_cm.label }}</label>
+                    {{ form.height_cm }}
+                    {{ form.height_cm.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.weight_kg.id_for_label }}" class="form-label">{{ form.weight_kg.label }}</label>
+                    {{ form.weight_kg }}
+                    {{ form.weight_kg.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.personal_contact.id_for_label }}" class="form-label">{{ form.personal_contact.label }}</label>
+                    {{ form.personal_contact }}
+                    {{ form.personal_contact.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="parent_email" class="form-label">{% trans "Parent Email Address" %}</label>
+                    <input 
+                        type="email" 
+                        name="parent_email" 
+                        id="parent_email" 
+                        class="form-control" 
+                        placeholder="{% trans "Enter parent's email (for alerts)" %}" 
+                        required>
+                    <small class="form-text">{% trans "Used to send health alerts." %}</small>
+                </div>
+
+                <div class="form-group span-2">
+                    <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+                    {{ form.address }}
+                    {{ form.address.errors }}
+                </div>
+
+            </div> <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                {% trans "Register" %}
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>{% trans "Already have an account?" %}</p>
+            <a href="{% url 'login' %}" class="btn btn-outline">{% trans "Login" %}</a>
         </div>
-      </div>
-
-      <button type="submit" class="btn btn-success w-100 rounded-pill py-2 mt-3 shadow-sm">
-        🚀 {% trans "Register" %}
-      </button>
-    </form>
-
-    <hr class="my-4">
-    <p class="text-muted mb-1">{% trans "Already have an account?" %}</p>
-    <a href="{% url 'login' %}" class="btn btn-outline-primary rounded-pill px-4">🔑 {% trans "Login" %}</a>
-
-    {% if messages %}
-    <div class="mt-3">
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} py-2 rounded-pill small shadow-sm text-center">
-        {{ message }}
-      </div>
-      {% endfor %}
     </div>
-    {% endif %}
-  </div>
 </div>
 
 <style>
-/* 🌈 Background Gradient Animation */
-.register-container {
-  min-height: 100vh; /* ✅ makes form scrollable */
-  background: linear-gradient(-45deg, #007bff, #00c6ff, #17a2b8, #6f42c1);
-  background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
-  overflow-y: auto; /* ✅ enables scrolling */
-  padding: 60px 0;
-}
+    /* Manually styling the form fields, since we removed .as_p */
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"],
+    .auth-form input[type="number"],
+    .auth-form input[type="date"],
+    .auth-form select,
+    .auth-form textarea {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        background-color: var(--color-surface);
+        color: var(--color-text);
+    }
+    .auth-form select {
+        /* Fix for select height */
+        height: calc(1.5em + 1.7rem + 2px); /* Matches input height */
+    }
+    .auth-form textarea {
+        min-height: 100px;
+        font-family: var(--font-family);
+    }
 
-/* 🎨 Card Design */
-.register-card {
-  width: 100%;
-  max-width: 650px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  position: relative;
-  z-index: 2;
-}
+    .auth-form input:focus,
+    .auth-form select:focus,
+    .auth-form textarea:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+    
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+    }
 
-/* 🌈 Gradient Heading */
-.text-gradient {
-  background: linear-gradient(90deg, #007bff, #00c6ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    /* --- NEW Grid Layout --- */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    /* Make an item span 2 columns */
+    .form-grid .span-2 {
+        grid-column: span 2;
+    }
 
-/* ✨ Animations */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    /* On mobile, stack everything */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .form-grid .span-2 {
+            grid-column: span 1;
+        }
+    }
+    
+    /* --- NEW Password Rules Styling (FIXED) --- */
+    /* This styles the default <ul class="helptext"> list from Django */
+    .password-rules .helptext {
+        background-color: var(--color-primary-light);
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        list-style-type: disc;
+        color: var(--color-text-muted);
+        padding-left: 30px; /* Indent the bullets */
+        margin: 0;
+    }
+    .password-rules .helptext li {
+        margin-bottom: 0.25rem;
+    }
 
-.animate-fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease forwards;
-}
-
-@keyframes fadeInUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 🧾 Form Styling */
-form p {
-  margin-bottom: 1rem;
-}
-
-label {
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 0.3rem;
-}
-
-input, select, textarea {
-  width: 100%;
-  border-radius: 50px;
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-textarea {
-  border-radius: 15px;
-  min-height: 80px;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
-}
-
-/* 🎛️ Buttons */
-.btn {
-  transition: all 0.3s ease;
-}
-
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* 📱 Responsive Tweaks */
-@media (max-width: 768px) {
-  .register-card {
-    max-width: 90%;
-    padding: 2rem 1.5rem;
-  }
-}
 </style>
 {% endblock %}

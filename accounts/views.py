@@ -1,3 +1,4 @@
+# accounts/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
@@ -76,7 +77,7 @@ def student_register(request):
                 request,
                 f"Account created successfully! Your Student ID: {profile.student_code}"
             )
-            # --- FIX 1 ---
+            # --- FIXED REDIRECT ---
             return redirect('health:student_dashboard')
         else:
             messages.error(request, "Please correct the errors below.")
@@ -128,10 +129,10 @@ def home(request):
     user = request.user
     if user.is_authenticated:
         if getattr(user, "is_teacher", False):
-            # --- FIX 2 ---
+            # --- FIXED REDIRECT ---
             return redirect('health:teacher_dashboard')
         elif getattr(user, "is_student", False):
-            # --- FIX 3 ---
+            # --- FIXED REDIRECT ---
             return redirect('health:student_dashboard')
     return render(request, 'home.html')
 
@@ -170,7 +171,7 @@ def login_view(request):
             elif getattr(user, "is_student", False):
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.username}!")
-                # --- FIX 4 ---
+                # --- FIXED REDIRECT ---
                 return redirect('health:student_dashboard')
             else:
                 login(request, user)
@@ -209,7 +210,7 @@ def verify_teacher_signup_otp(request):
             del request.session['pending_teacher_id']
             login(request, user)
             messages.success(request, f"Welcome, {user.username}! Your account is verified and active.")
-            # --- FIX 5 ---
+            # --- FIXED REDIRECT ---
             return redirect('health:teacher_dashboard')
         else:
             messages.error(request, "Invalid OTP. Please try again.")
@@ -236,7 +237,7 @@ def verify_teacher_login_otp(request):
             login(request, user)
             del request.session['pending_login_user_id']
             messages.success(request, f"Welcome back, {user.username}!")
-            # --- FIX 6 ---
+            # --- FIXED REDIRECT ---
             return redirect('health:teacher_dashboard')
         else:
             messages.error(request, "Invalid OTP. Please try again.")

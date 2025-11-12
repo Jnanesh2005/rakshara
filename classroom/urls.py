@@ -1,8 +1,9 @@
+# classroom/urls.py
 from django.urls import path
 from . import views
 
 urlpatterns = [
-    # --- THIS LINE IS REMOVED to prevent an infinite loop ---
+    # --- THIS CONFLICTING LINE IS DELETED ---
     # path('', views.teacher_dashboard, name='teacher_dashboard'),
 
     # Classroom views

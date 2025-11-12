@@ -1,3 +1,4 @@
+# classroom/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -15,9 +16,9 @@ from django.db.models.functions import TruncDay
 import json
 
 
-# --- THIS FUNCTION IS DELETED to prevent the infinite loop ---
+# --- THIS CONFLICTING VIEW IS NOW DELETED ---
 # def teacher_dashboard(request):
-#     return redirect('teacher_dashboard')
+#    ...
 
 
 @login_required

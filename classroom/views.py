@@ -34,7 +34,7 @@ def approve_request(request, req_id):
     req.approved = True
     req.save()
     messages.success(request, f"{req.student.user.username} approved.")
-    return redirect('teacher_dashboard')
+    return redirect('health:teacher_dashboard')
 
 
 @login_required
@@ -42,7 +42,7 @@ def reject_request(request, req_id):
     req = get_object_or_404(JoinRequest, id=req_id, teacher=request.user)
     req.delete()
     messages.warning(request, f"{req.student.user.username} request rejected.")
-    return redirect('teacher_dashboard')
+    return redirect('health:teacher_dashboard')
 
 
 @login_required

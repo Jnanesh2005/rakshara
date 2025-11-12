@@ -139,4 +139,4 @@ SENDGRID_API_KEY = 'SG.QbG4z420SYygx3kv_I-tOA.WXc7HLLEfBUcLx2Hna6E8Ayc-6h4YOQCCl
 # DEFAULT_FROM_EMAIL is still read from EMAIL_HOST_USER, which is correct
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'medteknie@gmail.com')

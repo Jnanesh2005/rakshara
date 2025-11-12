@@ -16,8 +16,7 @@ import json
 
 
 # Redirect to the main dashboard in the 'health' app
-def teacher_dashboard(request):
-    return redirect('teacher_dashboard')
+
 
 
 @login_required

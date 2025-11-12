@@ -3,7 +3,6 @@ from . import views
 
 urlpatterns = [
     # 🏫 Teacher Dashboard (Main Page)
-    path('', views.teacher_dashboard, name='teacher_dashboard'),
 
     # 👩‍🏫 View classroom details
     path('<int:pk>/', views.classroom_detail, name='classroom_detail'),

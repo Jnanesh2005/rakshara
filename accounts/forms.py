@@ -19,8 +19,8 @@ class StudentSignUpForm(UserCreationForm):
         model = User
         fields = ("username", "email", "password1", "password2",
                   "roll_no", "dob", "height_cm", "weight_kg", "personal_contact",
-                  "parent_contact", "address", "school", "class_name", "section",
-                  "image") # <-- And add 'image' here
+                  "parent_contact", "address", "school", "class_name", "section"
+                  ) # <-- And add 'image' here
 
 
 class TeacherSignUpForm(UserCreationForm):
